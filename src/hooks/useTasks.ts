@@ -113,7 +113,8 @@ export function useTasks() {
   const completeSessionSteps = (
     taskId: string,
     completedStepIds: string[],
-    newNextSteps: string[]
+    newNextSteps: string[],
+    newCompletedSteps: string[] = []
   ) => {
     setTasks((prev) =>
       prev.map((task) => {
@@ -131,6 +132,12 @@ export function useTasks() {
           text,
           completed: false,
         }));
+
+        const manuallyAddedCompleted: Step[] = newCompletedSteps.map((text) => ({
+          id: generateId(),
+          text,
+          completed: true,
+        }));
         
         return {
           ...task,
@@ -138,6 +145,7 @@ export function useTasks() {
           completedSteps: [
             ...task.completedSteps,
             ...stepsToMove.map((s) => ({ ...s, completed: true })),
+            ...manuallyAddedCompleted,
           ],
         };
       })
