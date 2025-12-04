@@ -100,9 +100,9 @@ export function KanbanBoard() {
     if (task) setFocusTask(task);
   };
 
-  const handleCompleteFocus = (completedStepIds: string[], newNextSteps: string[]) => {
+  const handleCompleteFocus = (completedStepIds: string[], newNextSteps: string[], newCompletedSteps: string[]) => {
     if (focusTask) {
-      completeSessionSteps(focusTask.id, completedStepIds, newNextSteps);
+      completeSessionSteps(focusTask.id, completedStepIds, newNextSteps, newCompletedSteps);
     }
   };
 
