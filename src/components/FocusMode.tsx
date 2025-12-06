@@ -29,47 +29,53 @@ export function FocusMode({ task, onClose, onComplete }: FocusModeProps) {
   const [timerCompleted, setTimerCompleted] = useState(false);
   const celebrationFired = useRef(false);
 
-  // Fire celebration confetti
-  const fireCelebration = useCallback(() => {
+  // Mediterranean sun glint - peaceful, not celebratory
+  const fireSunGlint = useCallback(() => {
     if (celebrationFired.current) return;
     celebrationFired.current = true;
 
-    // Multiple bursts for a more celebratory feel
-    const duration = 3000;
-    const end = Date.now() + duration;
+    const colors = ['#7BBFDB', '#9ED4EA', '#A8D8E8', '#F8E8C8', '#FDF5E6'];
+    
+    // Gentle center burst - like sun glinting off water
+    confetti({
+      particleCount: 40,
+      spread: 70,
+      origin: { y: 0.5 },
+      colors: colors,
+      gravity: 0.5,
+      ticks: 120,
+      scalar: 0.7,
+      shapes: ['circle'],
+      disableForReducedMotion: true,
+    });
 
-    const colors = ['#10b981', '#3b82f6', '#f59e0b', '#ec4899', '#8b5cf6'];
-
-    (function frame() {
-      confetti({
-        particleCount: 5,
-        angle: 60,
-        spread: 55,
-        origin: { x: 0, y: 0.7 },
-        colors: colors,
-      });
-      confetti({
-        particleCount: 5,
-        angle: 120,
-        spread: 55,
-        origin: { x: 1, y: 0.7 },
-        colors: colors,
-      });
-
-      if (Date.now() < end) {
-        requestAnimationFrame(frame);
-      }
-    })();
-
-    // Big center burst
+    // Soft side glints
     setTimeout(() => {
       confetti({
-        particleCount: 100,
-        spread: 100,
-        origin: { y: 0.6 },
+        particleCount: 20,
+        angle: 60,
+        spread: 40,
+        origin: { x: 0.3, y: 0.5 },
         colors: colors,
+        gravity: 0.4,
+        ticks: 100,
+        scalar: 0.6,
+        shapes: ['circle'],
+        disableForReducedMotion: true,
       });
-    }, 200);
+      confetti({
+        particleCount: 20,
+        angle: 120,
+        spread: 40,
+        origin: { x: 0.7, y: 0.5 },
+        colors: colors,
+        gravity: 0.4,
+        ticks: 100,
+        scalar: 0.6,
+        shapes: ['circle'],
+        disableForReducedMotion: true,
+      });
+    }, 150);
   }, []);
 
   // Handle ESC key
@@ -109,12 +115,12 @@ export function FocusMode({ task, onClose, onComplete }: FocusModeProps) {
     return () => clearInterval(interval);
   }, [isRunning, timeLeft]);
 
-  // Fire celebration when timer completes
+  // Fire sun glint when timer completes
   useEffect(() => {
     if (timerCompleted && showSummary) {
-      fireCelebration();
+      fireSunGlint();
     }
-  }, [timerCompleted, showSummary, fireCelebration]);
+  }, [timerCompleted, showSummary, fireSunGlint]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -125,7 +131,7 @@ export function FocusMode({ task, onClose, onComplete }: FocusModeProps) {
   const progress = totalDuration > 0 ? ((totalDuration - timeLeft) / totalDuration) * 100 : 0;
 
   const adjustTime = (minutes: number) => {
-    const newTime = Math.max(60, timeLeft + minutes * 60); // Minimum 1 minute
+    const newTime = Math.max(60, timeLeft + minutes * 60);
     setTimeLeft(newTime);
     if (!hasStarted) {
       setTotalDuration(newTime);
@@ -182,60 +188,77 @@ export function FocusMode({ task, onClose, onComplete }: FocusModeProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center animate-fade-in">
-      {/* Backdrop */}
+      {/* Backdrop - Limewash alcove with reflected sea light */}
       <div
-        className="absolute inset-0 bg-foreground/80 backdrop-blur-sm"
+        className="absolute inset-0 backdrop-blur-sm"
         onClick={handleClose}
+        style={{
+          background: 'radial-gradient(circle at 50% 0%, hsl(200 30% 92% / 0.95), hsl(200 25% 97% / 0.98))',
+        }}
       />
 
-      {/* Content */}
-      <div className="relative z-10 w-full max-w-lg mx-4 bg-card rounded-3xl shadow-2xl overflow-hidden">
+      {/* Content - Enlarged limewash tile */}
+      <div 
+        className="relative z-10 w-full max-w-lg mx-4 bg-card rounded-3xl overflow-hidden limewash-card"
+        style={{
+          boxShadow: '0 24px 48px hsl(209 21% 21% / 0.12), 0 0 0 1px hsl(200 30% 88% / 0.5)',
+        }}
+      >
         {/* Close Button */}
         <button
           onClick={handleClose}
-          className="absolute top-4 right-4 p-2 rounded-full hover:bg-muted/50 transition-colors z-20"
+          className="absolute top-4 right-4 p-2 rounded-full hover:bg-muted/40 transition-colors duration-200 z-20"
         >
           <X className="w-5 h-5 text-muted-foreground" />
         </button>
 
         <div className="p-8">
           {/* Task Title */}
-          <h2 className="text-xl font-semibold text-center text-card-foreground mb-8">
+          <h2 className="text-xl font-medium text-center text-card-foreground mb-8 leading-snug">
             {task.title}
           </h2>
 
           {!showSummary ? (
             <>
-              {/* Timer Circle */}
+              {/* Timer Circle - Cerulean/Azure gradient ring */}
               <div className="flex justify-center mb-6">
-                <div className="relative w-48 h-48">
+                <div className="relative w-52 h-52">
                   {/* Background Circle */}
                   <svg className="w-full h-full transform -rotate-90">
+                    <defs>
+                      <linearGradient id="timerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="hsl(195 65% 65%)" />
+                        <stop offset="100%" stopColor="hsl(200 55% 55%)" />
+                      </linearGradient>
+                    </defs>
                     <circle
-                      cx="96"
-                      cy="96"
-                      r="88"
+                      cx="104"
+                      cy="104"
+                      r="96"
                       fill="none"
-                      stroke="hsl(var(--muted))"
-                      strokeWidth="8"
+                      stroke="hsl(200 22% 88%)"
+                      strokeWidth="6"
                     />
-                    {/* Progress Circle */}
+                    {/* Progress Circle - Tide-like fill */}
                     <circle
-                      cx="96"
-                      cy="96"
-                      r="88"
+                      cx="104"
+                      cy="104"
+                      r="96"
                       fill="none"
-                      stroke="hsl(var(--primary))"
-                      strokeWidth="8"
+                      stroke="url(#timerGradient)"
+                      strokeWidth="6"
                       strokeLinecap="round"
-                      strokeDasharray={553}
-                      strokeDashoffset={553 - (553 * progress) / 100}
+                      strokeDasharray={603}
+                      strokeDashoffset={603 - (603 * progress) / 100}
                       className="transition-all duration-1000"
+                      style={{
+                        filter: 'drop-shadow(0 0 8px hsl(200 55% 55% / 0.3))',
+                      }}
                     />
                   </svg>
                   {/* Time Display */}
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-4xl font-mono font-semibold text-card-foreground">
+                    <span className="text-4xl font-mono font-medium text-card-foreground tracking-tight">
                       {formatTime(timeLeft)}
                     </span>
                   </div>
@@ -249,7 +272,7 @@ export function FocusMode({ task, onClose, onComplete }: FocusModeProps) {
                   size="sm"
                   onClick={() => adjustTime(-5)}
                   disabled={timeLeft <= 60}
-                  className="h-8 px-3"
+                  className="h-8 px-3 border-border/60 hover:bg-muted/40"
                 >
                   <Minus className="w-3 h-3 mr-1" />
                   5m
@@ -259,7 +282,7 @@ export function FocusMode({ task, onClose, onComplete }: FocusModeProps) {
                   size="sm"
                   onClick={() => adjustTime(-1)}
                   disabled={timeLeft <= 60}
-                  className="h-8 px-3"
+                  className="h-8 px-3 border-border/60 hover:bg-muted/40"
                 >
                   <Minus className="w-3 h-3 mr-1" />
                   1m
@@ -269,7 +292,7 @@ export function FocusMode({ task, onClose, onComplete }: FocusModeProps) {
                   variant="outline"
                   size="sm"
                   onClick={() => adjustTime(1)}
-                  className="h-8 px-3"
+                  className="h-8 px-3 border-border/60 hover:bg-muted/40"
                 >
                   <Plus className="w-3 h-3 mr-1" />
                   1m
@@ -278,7 +301,7 @@ export function FocusMode({ task, onClose, onComplete }: FocusModeProps) {
                   variant="outline"
                   size="sm"
                   onClick={() => adjustTime(5)}
-                  className="h-8 px-3"
+                  className="h-8 px-3 border-border/60 hover:bg-muted/40"
                 >
                   <Plus className="w-3 h-3 mr-1" />
                   5m
@@ -292,10 +315,12 @@ export function FocusMode({ task, onClose, onComplete }: FocusModeProps) {
                   className={cn(
                     'w-14 h-14 rounded-full flex items-center justify-center',
                     'bg-primary text-primary-foreground',
-                    'shadow-lg hover:shadow-xl',
                     'hover:scale-105 active:scale-95',
                     'transition-all duration-200'
                   )}
+                  style={{
+                    boxShadow: '0 8px 24px hsl(200 55% 55% / 0.3)',
+                  }}
                 >
                   {isRunning ? (
                     <Pause className="w-6 h-6" />
@@ -309,10 +334,12 @@ export function FocusMode({ task, onClose, onComplete }: FocusModeProps) {
                     className={cn(
                       'w-14 h-14 rounded-full flex items-center justify-center',
                       'bg-secondary text-secondary-foreground',
-                      'shadow-lg hover:shadow-xl',
                       'hover:scale-105 active:scale-95',
                       'transition-all duration-200'
                     )}
+                    style={{
+                      boxShadow: '0 4px 12px hsl(209 21% 21% / 0.1)',
+                    }}
                   >
                     <Square className="w-5 h-5" />
                   </button>
@@ -327,20 +354,19 @@ export function FocusMode({ task, onClose, onComplete }: FocusModeProps) {
             /* Summary View */
             <div className="space-y-6 animate-fade-in">
               {timerCompleted && (
-                <div className="text-center py-4 bg-primary/10 rounded-xl mb-4">
-                  <p className="text-2xl mb-1">🎉</p>
-                  <p className="text-lg font-semibold text-primary">Great work!</p>
-                  <p className="text-sm text-muted-foreground">You completed your focus session!</p>
+                <div className="text-center py-4 bg-primary/10 rounded-2xl mb-4 border border-primary/20">
+                  <p className="text-lg font-medium text-primary">Well done</p>
+                  <p className="text-sm text-muted-foreground mt-1">Focus session complete</p>
                 </div>
               )}
 
               <div>
-                <h3 className="text-sm font-semibold text-card-foreground mb-3">
+                <h3 className="text-sm font-medium text-card-foreground mb-3">
                   What did you complete?
                 </h3>
-                <div className="space-y-2 max-h-32 overflow-y-auto">
+                <div className="space-y-2.5 max-h-32 overflow-y-auto">
                   {task.nextSteps.map((step) => (
-                    <div key={step.id} className="flex items-center gap-2">
+                    <div key={step.id} className="flex items-center gap-2.5">
                       <Checkbox
                         checked={completedStepIds.includes(step.id)}
                         onCheckedChange={() => toggleStepCompletion(step.id)}
@@ -349,18 +375,18 @@ export function FocusMode({ task, onClose, onComplete }: FocusModeProps) {
                     </div>
                   ))}
                   {newCompletedSteps.map((step, index) => (
-                    <div key={`new-completed-${index}`} className="flex items-center gap-2 text-sm text-primary">
+                    <div key={`new-completed-${index}`} className="flex items-center gap-2.5 text-sm text-primary">
                       <Check className="w-4 h-4" />
                       {step}
                     </div>
                   ))}
                 </div>
-                <div className="flex gap-2 mt-2">
+                <div className="flex gap-2 mt-3">
                   <Input
                     value={newCompletedInput}
                     onChange={(e) => setNewCompletedInput(e.target.value)}
                     placeholder="Add something you completed..."
-                    className="flex-1"
+                    className="flex-1 bg-background/60"
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') addNewCompletedStep();
                     }}
@@ -369,6 +395,7 @@ export function FocusMode({ task, onClose, onComplete }: FocusModeProps) {
                     size="icon"
                     variant="outline"
                     onClick={addNewCompletedStep}
+                    className="border-border/60"
                   >
                     <Plus className="w-4 h-4" />
                   </Button>
@@ -376,16 +403,16 @@ export function FocusMode({ task, onClose, onComplete }: FocusModeProps) {
               </div>
 
               <div>
-                <h3 className="text-sm font-semibold text-card-foreground mb-3">
+                <h3 className="text-sm font-medium text-card-foreground mb-3">
                   What are the next steps?
                 </h3>
-                <div className="space-y-2">
+                <div className="space-y-2.5">
                   {newSteps.map((step, index) => (
                     <div
                       key={index}
-                      className="flex items-center gap-2 text-sm text-muted-foreground"
+                      className="flex items-center gap-2.5 text-sm text-muted-foreground"
                     >
-                      <span className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center text-xs text-primary">
+                      <span className="w-5 h-5 rounded-full bg-primary/15 flex items-center justify-center text-xs text-primary font-medium">
                         {index + 1}
                       </span>
                       {step}
@@ -396,7 +423,7 @@ export function FocusMode({ task, onClose, onComplete }: FocusModeProps) {
                       value={newStepInput}
                       onChange={(e) => setNewStepInput(e.target.value)}
                       placeholder="Add a new step..."
-                      className="flex-1"
+                      className="flex-1 bg-background/60"
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') addNewStep();
                       }}
@@ -405,6 +432,7 @@ export function FocusMode({ task, onClose, onComplete }: FocusModeProps) {
                       size="icon"
                       variant="outline"
                       onClick={addNewStep}
+                      className="border-border/60"
                     >
                       <Plus className="w-4 h-4" />
                     </Button>
@@ -416,6 +444,9 @@ export function FocusMode({ task, onClose, onComplete }: FocusModeProps) {
                 onClick={handleFinish}
                 className="w-full"
                 size="lg"
+                style={{
+                  boxShadow: '0 4px 16px hsl(200 55% 55% / 0.25)',
+                }}
               >
                 <Check className="w-4 h-4 mr-2" />
                 Save & Close

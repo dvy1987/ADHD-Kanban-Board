@@ -44,12 +44,20 @@ export function KanbanBoard() {
     })
   );
 
-  const triggerConfetti = useCallback(() => {
+  // Mediterranean sun glint - subtle cerulean + pale gold particles
+  const triggerSunGlint = useCallback(() => {
+    const colors = ['#7BBFDB', '#9ED4EA', '#A8D8E8', '#F8E8C8', '#FDF5E6'];
+    
     confetti({
-      particleCount: 100,
-      spread: 70,
+      particleCount: 35,
+      spread: 60,
       origin: { y: 0.6 },
-      colors: ['#0ea5e9', '#22d3ee', '#a5f3fc', '#67e8f9'],
+      colors: colors,
+      gravity: 0.6,
+      ticks: 150,
+      scalar: 0.8,
+      shapes: ['circle'],
+      disableForReducedMotion: true,
     });
   }, []);
 
@@ -88,9 +96,9 @@ export function KanbanBoard() {
     if (task.column !== targetColumn) {
       moveTask(taskId, targetColumn);
       
-      // Trigger confetti when moving to Done
+      // Trigger sun glint when moving to Done
       if (targetColumn === 'done') {
-        setTimeout(triggerConfetti, 100);
+        setTimeout(triggerSunGlint, 100);
       }
     }
   };
@@ -118,7 +126,7 @@ export function KanbanBoard() {
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 p-6 lg:p-8">
           {columns.map((column) => (
             <KanbanColumn
               key={column.id}
@@ -135,7 +143,7 @@ export function KanbanBoard() {
 
         <DragOverlay>
           {activeTask && (
-            <div className="rotate-3 scale-105">
+            <div className="rotate-2 scale-[1.02]">
               <TaskCard
                 task={activeTask}
                 onToggleStep={() => {}}
