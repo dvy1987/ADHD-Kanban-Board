@@ -1,7 +1,7 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Play, Check, Plus } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Task, Step } from '@/types/task';
 import { ImpactStars } from './ImpactStars';
 import { cn } from '@/lib/utils';
@@ -25,6 +25,8 @@ export function TaskCard({
 }: TaskCardProps) {
   const [newStep, setNewStep] = useState('');
   const [isAddingStep, setIsAddingStep] = useState(false);
+  const [showRipple, setShowRipple] = useState(false);
+  const rippleRef = useRef<HTMLSpanElement>(null);
 
   const {
     attributes,
@@ -37,7 +39,7 @@ export function TaskCard({
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition,
+    transition: transition || 'transform 200ms cubic-bezier(.22, 1, .36, 1)',
   };
 
   const handleAddStep = () => {
@@ -48,37 +50,52 @@ export function TaskCard({
     }
   };
 
+  const handleStartFocus = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    // Trigger water ripple
+    setShowRipple(true);
+    setTimeout(() => setShowRipple(false), 400);
+    onStartFocus();
+  };
+
   const hasHighImpact = task.impactStars === 3;
+
+  const combinedStyle = {
+    ...style,
+    boxShadow: isDragging 
+      ? '0 16px 32px hsl(209 21% 21% / 0.12)' 
+      : '0 6px 16px hsl(209 21% 21% / 0.06)',
+  };
 
   return (
     <div
       ref={setNodeRef}
-      style={style}
+      style={combinedStyle}
       {...attributes}
       {...listeners}
       className={cn(
-        'bg-card rounded-xl p-4 shadow-md border border-border/50',
+        'limewash-card rounded-[14px] p-5 border border-border/40',
         'cursor-grab active:cursor-grabbing',
         'transition-all duration-200',
-        'hover:shadow-lg hover:border-primary/20',
-        isDragging && 'opacity-50 scale-105 shadow-xl',
+        'hover:-translate-y-0.5',
+        isDragging && 'opacity-60 scale-[1.02] shadow-xl',
         hasHighImpact && 'animate-gentle-glow'
       )}
     >
       {/* Top Row: Title and Stars */}
-      <div className="flex items-start justify-between gap-3 mb-3">
-        <h3 className="text-base font-semibold text-card-foreground truncate flex-1">
+      <div className="flex items-start justify-between gap-3 mb-4">
+        <h3 className="text-base font-medium text-card-foreground truncate flex-1 leading-snug">
           {task.title}
         </h3>
         <ImpactStars count={task.impactStars} onChange={onUpdateImpact} />
       </div>
 
       {/* Middle: Steps */}
-      <div className="space-y-2 mb-4">
+      <div className="space-y-2.5 mb-5">
         {/* Next Steps */}
         {task.nextSteps.length > 0 && (
-          <div className="space-y-1.5">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
               Next Steps
             </p>
             {task.nextSteps.map((step) => (
@@ -100,7 +117,7 @@ export function TaskCard({
                   value={newStep}
                   onChange={(e) => setNewStep(e.target.value)}
                   placeholder="Add a step..."
-                  className="h-8 text-sm"
+                  className="h-8 text-sm bg-background/60"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') handleAddStep();
                     if (e.key === 'Escape') setIsAddingStep(false);
@@ -109,7 +126,7 @@ export function TaskCard({
                 />
                 <button
                   onClick={handleAddStep}
-                  className="p-1.5 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+                  className="p-1.5 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors duration-200"
                 >
                   <Check className="w-4 h-4" />
                 </button>
@@ -117,7 +134,7 @@ export function TaskCard({
             ) : (
               <button
                 onClick={() => setIsAddingStep(true)}
-                className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors"
+                className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors duration-200"
               >
                 <Plus className="w-4 h-4" />
                 Add step
@@ -128,8 +145,8 @@ export function TaskCard({
 
         {/* Completed Steps */}
         {task.completedSteps.length > 0 && (
-          <div className="space-y-1.5 pt-2 border-t border-border/50">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+          <div className="space-y-2 pt-3 border-t border-border/40">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
               Completed
             </p>
             {task.completedSteps.map((step) => (
@@ -141,23 +158,30 @@ export function TaskCard({
 
       {/* Bottom: Timer Button */}
       {task.column !== 'done' && (
-        <div className="flex justify-center pt-2">
+        <div className="flex justify-center pt-3">
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onStartFocus();
-            }}
+            onClick={handleStartFocus}
             className={cn(
-              'w-12 h-12 rounded-full',
-              'bg-primary text-primary-foreground',
+              'relative w-12 h-12 rounded-full',
+              'bg-background border-2 border-primary/60',
               'flex items-center justify-center',
-              'shadow-lg hover:shadow-xl',
-              'hover:scale-105 active:scale-95',
+              'hover:border-primary hover:shadow-md',
+              'active:scale-95',
               'transition-all duration-200',
-              'focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2'
+              'focus:outline-none focus:ring-2 focus:ring-primary/30 focus:ring-offset-2'
             )}
+            style={{
+              boxShadow: '0 4px 12px hsl(200 55% 55% / 0.15)',
+            }}
           >
-            <Play className="w-5 h-5 ml-0.5" />
+            {/* Ripple effect */}
+            {showRipple && (
+              <span
+                ref={rippleRef}
+                className="absolute inset-0 rounded-full border-2 border-primary/40 water-ripple"
+              />
+            )}
+            <Play className="w-5 h-5 ml-0.5 text-primary" />
           </button>
         </div>
       )}
@@ -173,7 +197,7 @@ interface StepItemProps {
 
 function StepItem({ step, onToggle, completed }: StepItemProps) {
   return (
-    <div className="flex items-center gap-2 group">
+    <div className="flex items-center gap-2.5 group">
       <Checkbox
         checked={step.completed || completed}
         onCheckedChange={onToggle}
@@ -182,7 +206,7 @@ function StepItem({ step, onToggle, completed }: StepItemProps) {
       />
       <span
         className={cn(
-          'text-sm flex-1',
+          'text-sm flex-1 leading-relaxed',
           (step.completed || completed) && 'line-through text-muted-foreground'
         )}
       >

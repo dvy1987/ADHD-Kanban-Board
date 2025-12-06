@@ -13,6 +13,8 @@ export function ImpactStars({ count, onChange, readonly = false }: ImpactStarsPr
     onChange((starIndex + 1) as 1 | 2 | 3);
   };
 
+  const isHighImpact = count === 3;
+
   return (
     <div className="flex gap-1">
       {[0, 1, 2].map((index) => (
@@ -24,15 +26,19 @@ export function ImpactStars({ count, onChange, readonly = false }: ImpactStarsPr
           className={cn(
             'p-0.5 transition-all duration-200',
             !readonly && 'hover:scale-110 cursor-pointer',
-            readonly && 'cursor-default'
+            readonly && 'cursor-default',
+            isHighImpact && index < count && 'animate-star-pulse'
           )}
+          style={{
+            animationDelay: `${index * 0.5}s`,
+          }}
         >
           <Star
             className={cn(
               'w-5 h-5 transition-colors duration-200',
               index < count
-                ? 'fill-primary text-primary'
-                : 'fill-transparent text-muted'
+                ? 'fill-[hsl(200_55%_55%)] text-[hsl(200_55%_55%)]'
+                : 'fill-transparent text-[hsl(209_21%_21%/0.25)]'
             )}
           />
         </button>
